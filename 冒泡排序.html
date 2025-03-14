@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冒泡排序互动游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .bar {
+            width: 60px;
+            border: 2px solid transparent;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .bar {
+                width: 40px;
+            }
+        }
+
+        .highlight {
+            position: relative;
+        }
+
+        .highlight::before {
+            content: "↑";
+            position: absolute;
+            top: -25px;
+            font-size: 24px;
+            color: #ff4757;
+            animation: pulse 1s infinite;
+        }
+
+        .highlight .bar {
+            border-color: #ff4757;
+            box-shadow: 0 0 10px rgba(255,71,71,0.3);
+        }
+
+        .number {
+            margin-top: 5px;
+            font-weight: bold;
+            color: #666;
+            font-size: 16px;
+        }
+
+        #chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 280px;
+            margin: 30px 0 15px;
+            padding: 15px 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        button {
+            padding: 12px 18px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #startBtn {
+            background: #007bff;
+        }
+        
+        #swapBtn {
+            background: #28a745;
+        }
+        
+        #noSwapBtn {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .settings {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings label {
+            margin: 0 8px;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .settings label:hover {
+            background: #dee2e6;
+        }
+
+        .number-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .number-input input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .back-link {
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>冒泡排序互动游戏</h1>
+        <p class="description">
+            这是一个交互式的冒泡排序游戏，你可以选择2-9个随机数字进行排序。
+            通过比较相邻的两个数字，决定是否需要交换它们的位置。
+        </p>
+    </div>
+    
+    <div class="settings">
+        <div class="settings-group">
+            <label>排序方向：</label>
+            <label>
+                <input type="radio" name="sortOrder" value="asc" checked> 从小到大
+            </label>
+            <label>
+                <input type="radio" name="sortOrder" value="desc"> 从大到小
+            </label>
+        </div>
+        <div class="settings-group">
+            <label>数字个数：</label>
+            <div class="number-input">
+                <input type="number" id="numberCount" min="2" max="9" value="3">
+                <span>(2-9个)</span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="chart"></div>
+    
+    <div class="controls">
+        <button id="startBtn">开始排序</button>
+        <button id="swapBtn" disabled>交换</button>
+        <button id="noSwapBtn" disabled>跳过</button>
+    </div>
+    
+    <a href="index.html" class="back-link">返回主页</a>
+
+    <script>
+        /**
+         * 全局变量声明
+         */
+        let arr = [];              // 当前数组
+        let currentI = 0;          // 外层循环索引
+        let currentJ = 0;          // 内层循环索引
+        let originalArr = [];      // 原始数组
+        let isCompleted = false;   // 是否完成排序
+
+        /**
+         * 颜色生成函数
+         * @param {number} index 颜色索引
+         * @param {number} total 总数
+         * @returns {string} HSL颜色字符串
+         */
+        function generateColor(index, total) {
+            const hue = (index * 360 / total) % 360;
+            return `hsl(${hue}, 70%, 65%)`;
+        }
+
+        /**
+         * 生成指定数量的随机不重复数字数组
+         * @param {number} count 需要生成的数字个数
+         * @returns {number[]} 生成的随机数组
+         */
+        function generateRandomArray(count) {
+            const arr = [];
+            while (arr.length < count) {
+                const num = Math.floor(Math.random() * 9) + 1;
+                if (!arr.includes(num)) arr.push(num);
+            }
+            return arr;
+        }
+
+        /**
+         * 渲染柱状图
+         * @returns {void}
+         */
+        function renderBars() {
+            const chart = document.getElementById('chart');
+            chart.innerHTML = '';
+            
+            // 根据数组长度动态调整柱子宽度
+            const barWidth = Math.min(60, Math.max(30, 400 / arr.length));
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => bar.style.width = `${barWidth}px`);
+            
+            arr.forEach((value, index) => {
+                const barContainer = document.createElement('div');
+                barContainer.className = `bar-container${
+                    (index === currentJ || index === currentJ + 1) ? ' highlight' : ''
+                }`;
+
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.width = `${barWidth}px`;
+                bar.style.height = `${value * 30}px`;
+                bar.style.backgroundColor = generateColor(index, arr.length);
+
+                const number = document.createElement('span');
+                number.className = 'number';
+                number.textContent = value;
+
+                barContainer.appendChild(bar);
+                barContainer.appendChild(number);
+                chart.appendChild(barContainer);
+            });
+        }
+
+        /**
+         * 检查数组是否已经排序
+         * @returns {boolean} 是否已排序
+         */
+        function checkSorted() {
+            const sortOrder = document.querySelector('input[name="sortOrder"]:checked').value;
+            for (let i = 0; i < arr.length - 1; i++) {
+                if (sortOrder === 'asc' && arr[i] > arr[i + 1]) return false;
+                if (sortOrder === 'desc' && arr[i] < arr[i + 1]) return false;
+            }
+            return true;
+        }
+
+        /**
+         * 处理排序操作（移动到下一个比较位置）
+         * @returns {void}
+         */
+        function handleOperation() {
+            // 先渲染当前状态
+            renderBars();
+            
+            currentJ++;
+            
+            if (currentJ >= arr.length - currentI - 1) {
+                currentI++;
+                currentJ = 0;
+                
+                if (currentI >= arr.length - 1) {
+                    isCompleted = true;
+                    const success = checkSorted();
+                    const message = success ? '排序成功！🎉' : '排序失败！❌';
+                    setTimeout(() => {
+                        alert(message);
+                        document.getElementById('startBtn').disabled = false;
+                        document.getElementById('swapBtn').disabled = true;
+                        document.getElementById('noSwapBtn').disabled = true;
+                        document.querySelectorAll('input[name="sortOrder"]').forEach(radio => {
+                            radio.disabled = false;
+                        });
+                        document.getElementById('numberCount').disabled = false;
+                    }, 300); // 添加延时以确保用户能看到最后的状态
+                    return;
+                }
+            }
+            
+            // 再次渲染以更新高亮位置
+            renderBars();
+        }
+
+        // 事件监听器设置
+        document.getElementById('startBtn').addEventListener('click', () => {
+            const count = parseInt(document.getElementById('numberCount').value);
+            if (count < 2 || count > 9) {
+                alert('请输入2-9之间的数字！');
+                return;
+            }
+            
+            arr = generateRandomArray(count);
+            originalArr = [...arr];
+            currentI = 0;
+            currentJ = 0;
+            isCompleted = false;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('swapBtn').disabled = false;
+            document.getElementById('noSwapBtn').disabled = false;
+            document.querySelectorAll('input[name="sortOrder"]').forEach(radio => {
+                radio.disabled = true;
+            });
+            document.getElementById('numberCount').disabled = true;
+            
+            renderBars();
+        });
+
+        document.getElementById('swapBtn').addEventListener('click', () => {
+            if (isCompleted) return;
+            [arr[currentJ], arr[currentJ + 1]] = [arr[currentJ + 1], arr[currentJ]];
+            handleOperation();
+        });
+
+        document.getElementById('noSwapBtn').addEventListener('click', () => {
+            if (isCompleted) return;
+            handleOperation();
+        });
+
+        // 数字输入框验证
+        document.getElementById('numberCount').addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (value < 2) this.value = 2;
+            if (value > 9) this.value = 9;
+        });
+
+        // 初始生成
+        arr = generateRandomArray(3);
+        originalArr = [...arr];
+        renderBars();
+    </script>
+</body>
+</html>
